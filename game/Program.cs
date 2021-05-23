@@ -17,7 +17,7 @@ namespace game
 
             BuildConfiguration(new ConfigurationBuilder());
 
-            using(var game = ActivatorUtilities.CreateInstance<ExampleGame>(host.Services))
+            using(var game = ActivatorUtilities.GetServiceOrCreateInstance<Game>(host.Services))
                 game.Run();
         }
 
@@ -25,8 +25,11 @@ namespace game
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
             builder
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true);
+                .AddJsonFile(
+                        "appsettings.json", 
+                        optional: false, 
+                        reloadOnChange: true
+                    );
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
