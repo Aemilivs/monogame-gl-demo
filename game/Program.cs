@@ -22,7 +22,6 @@ namespace game
         }
 
         public static void BuildConfiguration(IConfigurationBuilder builder) {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
             builder
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile(
@@ -37,7 +36,8 @@ namespace game
                 .ConfigureServices((hostContext, services) =>
                     {
                         services.AddSingleton<ILoggerFactory>(LoggerFactory.Create(it => it.AddConsole()));
-                        services.AddTransient<Game, ExampleGame>();
+                        services.AddSingleton<Game, PongGame>();
+                        services.AddSingleton<GraphicsDeviceManager>();
                     }
                 );
     }
