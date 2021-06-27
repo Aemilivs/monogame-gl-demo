@@ -34,15 +34,15 @@ namespace game
             this.Content.RootDirectory = "Content";
 
             render = new RenderTarget2D(GraphicsDevice, 640, 480);
-            ball = new PongBall(this, render);
-            ball.ResetBall();
-            Components.Add(ball);
-
-            state = new IdleGameState(this, ball);
             
             background = new PongBackground(this, render);
             background.screen = CalculateScreenRectangle(render);
             Components.Add(background);
+            
+            ball = new PongBall(this, render);
+            ball.ResetBall();
+            Components.Add(ball);
+            state = new IdleGameState(this, ball);
 
             var ticks = displaySettings.GetValue<long>("ElapsedTimeTicks");
             this.TargetElapsedTime = TimeSpan.FromTicks(ticks);
