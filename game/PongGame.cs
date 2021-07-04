@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using game.Pong;
 using game.Pong.States;
 using Microsoft.Extensions.Configuration;
@@ -14,42 +15,57 @@ namespace game
         private readonly IConfiguration _configuration;
         private GameState state;
         private PongBall ball;
+        private PongPaddle[] paddles; 
         private SpriteBatch spriteBatch;
-        private RenderTarget2D render;
+        public RenderTarget2D Render { get; private set; }
         private PongBackground background;
         public PongGame(IConfiguration configuration)
         {
             _configuration = configuration;
             _graphics = new GraphicsDeviceManager(this);
         }
-       
+
         protected override void Initialize()
         {
             var displaySettings = _configuration.GetSection("DisplaySettings");
-            _graphics.PreferredBackBufferWidth = displaySettings.GetValue<int>("Width");
-            _graphics.PreferredBackBufferHeight = displaySettings.GetValue<int>("Height");
+
+            var width = displaySettings.GetValue<int>("Width");
+            var hegiht = displaySettings.GetValue<int>("Height");
+
+            _graphics.PreferredBackBufferWidth = width;
+            _graphics.PreferredBackBufferHeight = hegiht;
             _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
             this.Content.RootDirectory = "Content";
 
-            render = new RenderTarget2D(GraphicsDevice, 640, 480);
+            Render = new RenderTarget2D(GraphicsDevice, width, hegiht);
             
-            background = new PongBackground(this, render);
-            background.screen = CalculateScreenRectangle(render);
+            background = new PongBackground(this, Render);
+            background.screen = CalculateScreenRectangle(Render);
             Components.Add(background);
             
-            ball = new PongBall(this, render);
+            ball = new PongBall(this, Render);
             ball.ResetBall();
             Components.Add(ball);
             state = new IdleGameState(this, ball);
+
+            paddles =
+            new PongPaddle[] 
+            {
+                new PongPaddle(this, ScoreSide.Left),
+                new PongPaddle(this, ScoreSide.Right)
+            };
+            
+            foreach (var paddle in paddles)
+                Components.Add(paddle);
 
             var ticks = displaySettings.GetValue<long>("ElapsedTimeTicks");
             this.TargetElapsedTime = TimeSpan.FromTicks(ticks);
 
             this.Window.AllowUserResizing = true;
             this.Window.ClientSizeChanged += 
-                (sender, args) => background.screen = CalculateScreenRectangle(render);
+                (sender, args) => background.screen = CalculateScreenRectangle(Render);
 
             base.Initialize();
         }
@@ -57,24 +73,6 @@ namespace game
         public void SetState(GameState state) 
         {
             this.state = state;
-        }
-
-        private Texture2D DrawTexture()
-        {
-            var texture =
-                new Texture2D(
-                        GraphicsDevice,
-                        width: 1,
-                        height: 1
-                    );
-            var data =
-                new Color[]
-                {
-                    Color.White
-                };
-            texture.SetData(data);
-
-            return texture;
         }
 
         private Rectangle CalculateScreenRectangle(RenderTarget2D render)
@@ -111,25 +109,19 @@ namespace game
                 )
                 Exit();
                 
+            var collisionDetected = paddles.Any(it => it.DetectCollision(ball));
+
+            if(collisionDetected)
+            {
+                ball.velocity.X *= -1;
+            }
+
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            // GraphicsDevice.SetRenderTarget(render);
-            // GraphicsDevice.Clear(Color.Black);
-
-            // GraphicsDevice.SetRenderTarget(null);
-            // GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // spriteBatch.Begin();
-            // spriteBatch.Draw(
-            //         render, 
-            //         screen, 
-            //         Color.White
-            //     );
-            // spriteBatch.End();
-            GraphicsDevice.SetRenderTarget(render);
+            GraphicsDevice.SetRenderTarget(Render);
             base.Draw(gameTime);
 
             GraphicsDevice.SetRenderTarget(null);
@@ -137,12 +129,11 @@ namespace game
 
             spriteBatch.Begin();
             spriteBatch.Draw(
-                    render, 
+                    Render, 
                     background.screen, 
                     Color.White
                 );
             spriteBatch.End();
-            
         }
     }
 }

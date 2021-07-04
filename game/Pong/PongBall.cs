@@ -4,15 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace game.Pong
 {
-    public class PongBall : DrawableGameComponent
+    public class PongBall : PongGameComponent
     {
         private readonly RenderTarget2D _render;
-        private Texture2D texture;
-        private SpriteBatch spriteBatch;
-        private Rectangle position;
-        private Point velocity;
+        public Point velocity;
         private ScoreSide scoreSide = ScoreSide.Left;
-        public PongBall(Game game, RenderTarget2D render) : base(game)
+        public PongBall(PongGame game, RenderTarget2D render) : base(game)
         {
             _render = render;
         }
@@ -29,21 +26,21 @@ namespace game.Pong
 
         public override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin();
-            spriteBatch.Draw(
-                    texture,
-                    position,
+            SpriteBatch.Begin();
+            SpriteBatch.Draw(
+                    Texture,
+                    Position,
                     Color.White
                 );
-            spriteBatch.End();
+            SpriteBatch.End();
             
             base.Draw(gameTime);
         }
 
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            texture = DrawTexture();
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            Texture = DrawTexture();
             base.LoadContent();
         }
 
@@ -67,33 +64,33 @@ namespace game.Pong
 
         public ScoreSide MoveBall(bool bounceOffSides)
         {
-            position.X += velocity.X;
-            position.Y += velocity.Y;
+            Position.X += velocity.X;
+            Position.Y += velocity.Y;
 
-            if(position.Y < 0)
+            if(Position.Y < 0)
             {
-                position.Y *= -1;
+                Position.Y *= -1;
                 velocity.Y *= -1;
             }
 
-            if(position.Y + position.Height > _render.Height)
+            if(Position.Y + Position.Height > _render.Height)
             {
-                position.Y = _render.Height - position.Height - (position.Y + position.Height - _render.Height);
+                Position.Y = _render.Height - Position.Height - (Position.Y + Position.Height - _render.Height);
                 velocity.Y *= -1;
             }
 
-            if(position.X < 0)
+            if(Position.X < 0)
                 if(bounceOffSides) 
                 {
-                    position.X = 0;
+                    Position.X = 0;
                     velocity.X *= -1;
                 }
                 else return ScoreSide.Left;
 
-            if(position.X + position.Height > _render.Width)
+            if(Position.X + Position.Height > _render.Width)
                 if(bounceOffSides)
                 {
-                    position.X = _render.Width - position.Width;
+                    Position.X = _render.Width - Position.Width;
                     velocity.X *= -1;
                 }
                 else return ScoreSide.Right;
@@ -103,7 +100,7 @@ namespace game.Pong
 
         public void ResetBall()
         {
-            position = 
+            Position = 
                 new Rectangle(
                     _render.Width/2 - 4,
                     _render.Height/2 - 4,

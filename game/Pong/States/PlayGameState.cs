@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Xna.Framework.Input;
 
 namespace game.Pong.States
 {
@@ -12,6 +13,13 @@ namespace game.Pong.States
 
         public override void Update()
         {
+            if (Keyboard.GetState().IsKeyDown(Keys.R))
+            {
+                var state = new IdleGameState(_game, _ball);
+                _game.SetState(state);
+                _ball.ResetBall();
+            }
+
             var scoreSide = _ball.MoveBall(true);
 
             switch (scoreSide)
