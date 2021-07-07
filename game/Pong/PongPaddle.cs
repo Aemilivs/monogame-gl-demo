@@ -8,9 +8,16 @@ namespace game.Pong
     public class PongPaddle : PongGameComponent
     {
         private Point velocity;
+        private readonly PongGame _game;
+        private readonly ScoreSide _side;
         
+        // TODO: Redesign.
+        private const int WALL_WIDTH = 5;
+
         public PongPaddle(PongGame game, ScoreSide side) : base(game)
         {
+            _side = side;
+            _game = game;
             int horizontalCoordinate;
             int verticalCoordinate;
 
@@ -28,7 +35,7 @@ namespace game.Pong
                     throw new ArgumentException("Score side is invalid.");
             }
 
-            Position = 
+            _position = 
                 new Rectangle(
                         horizontalCoordinate,
                         verticalCoordinate,
@@ -39,16 +46,21 @@ namespace game.Pong
             velocity = new Point(0, 0);
         }
 
+        public override void Collide(PongGameComponent component)
+        {
+            if(component is PongBall ball)
+                ball.Velocity.X *= -1;
+        }
 
         public override void Draw(GameTime gameTime)
         {
-            SpriteBatch.Begin();
-            SpriteBatch.Draw(
-                    Texture,
-                    Position,
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(
+                    _texture,
+                    _position,
                     Color.White
                 );
-            SpriteBatch.End();
+            _spriteBatch.End();
             
             base.Draw(gameTime);
         }
@@ -59,46 +71,35 @@ namespace game.Pong
 
             if(Keyboard.GetState().IsKeyDown(Keys.Up))
             {
-                if(Position.Y < 0)
+                if(_position.Y <= WALL_WIDTH)
+                {
+                    _position.Y = WALL_WIDTH;
                     return;
+                }
 
                 velocity.Y = velocity.Y > 0 ? -1 : --velocity.Y;
-                Position.Y += velocity.Y;
+                _position.Y += velocity.Y;
             }
 
             if(Keyboard.GetState().IsKeyDown(Keys.Down))
             {
-                if(Position.Y >= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height)
+                
+                if(_position.Y >= _game.Render.Height - _position.Height - WALL_WIDTH)
+                {
+                    _position.Y = _game.Render.Height - _position.Height - WALL_WIDTH;
                     return;
+                }
 
                 velocity.Y = velocity.Y <= 0 ? 1 : ++velocity.Y;
-                Position.Y += velocity.Y;
+                _position.Y += velocity.Y;
             }
         }
 
         protected override void LoadContent()
         {
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
-            Texture = DrawTexture();
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _texture = DrawTexture();
             base.LoadContent();
-        }
-
-        private Texture2D DrawTexture()
-        {
-            var Texture =
-                new Texture2D(
-                        GraphicsDevice,
-                        1,
-                        1
-                    );
-            var data =
-                new Color[]
-                {
-                    Color.White
-                };
-            Texture.SetData(data);
-
-            return Texture;
         }
     }
 }

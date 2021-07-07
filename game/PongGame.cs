@@ -44,6 +44,56 @@ namespace game
             background = new PongBackground(this, Render);
             background.screen = CalculateScreenRectangle(Render);
             Components.Add(background);
+
+            var walls = 
+                new PongWall[]
+                {
+                    new PongWall(
+                            this, 
+                            Render, 
+                            new Rectangle(
+                                    Point.Zero,
+                                    new Point(GraphicsDevice.Viewport.Width, 5)
+                                ), 
+                            ScoreSide.Top
+                        ),
+                    new PongWall(
+                            this, 
+                            Render, 
+                            new Rectangle(
+                                    GraphicsDevice.Viewport.Width - 5, 
+                                    5, 
+                                    5, 
+                                    GraphicsDevice.Viewport.Height
+                                ), 
+                            ScoreSide.Right
+                        ),
+                    new PongWall(
+                            this, 
+                            Render, 
+                            new Rectangle(
+                                    0, 
+                                    GraphicsDevice.Viewport.Height - 5, 
+                                    GraphicsDevice.Viewport.Width, 
+                                    5
+                                ), 
+                            ScoreSide.Bottom
+                        ),
+                    new PongWall(
+                            this, 
+                            Render, 
+                            new Rectangle(
+                                    0, 
+                                    0, 
+                                    5,
+                                    GraphicsDevice.Viewport.Height
+                                ), 
+                            ScoreSide.Left
+                        )
+                };
+
+            foreach (var wall in walls)
+                Components.Add(wall);
             
             ball = new PongBall(this, Render);
             ball.ResetBall();
@@ -51,14 +101,24 @@ namespace game
             state = new IdleGameState(this, ball);
 
             paddles =
-            new PongPaddle[] 
-            {
-                new PongPaddle(this, ScoreSide.Left),
-                new PongPaddle(this, ScoreSide.Right)
-            };
+                new PongPaddle[] 
+                {
+                    new PongPaddle(this, ScoreSide.Left),
+                    new PongPaddle(this, ScoreSide.Right)
+                };
             
             foreach (var paddle in paddles)
                 Components.Add(paddle);
+
+            var scores =
+                new PongScore[]
+                {
+                    new PongScore(this, ScoreSide.Left),
+                    new PongScore(this, ScoreSide.Right)
+                };
+            
+            foreach (var score in scores)
+                Components.Add(score);
 
             var ticks = displaySettings.GetValue<long>("ElapsedTimeTicks");
             this.TargetElapsedTime = TimeSpan.FromTicks(ticks);
@@ -109,11 +169,19 @@ namespace game
                 )
                 Exit();
                 
-            var collisionDetected = paddles.Any(it => it.DetectCollision(ball));
 
-            if(collisionDetected)
+            
+            var components = Components;
+
+            foreach (var gameComponent in components)
             {
-                ball.velocity.X *= -1;
+                if(gameComponent is PongGameComponent pongComponent)
+                {
+                    if(pongComponent.DetectCollision(ball))
+                    {
+                        pongComponent.Collide(ball);
+                    }
+                }
             }
 
             base.Update(gameTime);

@@ -7,7 +7,7 @@ namespace game.Pong
     public class PongBall : PongGameComponent
     {
         private readonly RenderTarget2D _render;
-        public Point velocity;
+        public Point Velocity;
         private ScoreSide scoreSide = ScoreSide.Left;
         public PongBall(PongGame game, RenderTarget2D render) : base(game)
         {
@@ -22,85 +22,39 @@ namespace game.Pong
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            MoveBall();
         }
 
         public override void Draw(GameTime gameTime)
         {
-            SpriteBatch.Begin();
-            SpriteBatch.Draw(
-                    Texture,
-                    Position,
+            base.Draw(gameTime);
+
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(
+                    _texture,
+                    _position,
                     Color.White
                 );
-            SpriteBatch.End();
-            
-            base.Draw(gameTime);
+            _spriteBatch.End();
         }
 
         protected override void LoadContent()
         {
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
-            Texture = DrawTexture();
             base.LoadContent();
+            
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _texture = base.DrawTexture();
         }
 
-        private Texture2D DrawTexture()
+        public void MoveBall()
         {
-            var texture =
-                new Texture2D(
-                        GraphicsDevice,
-                        1,
-                        1
-                    );
-            var data =
-                new Color[]
-                {
-                    Color.White
-                };
-            texture.SetData(data);
-
-            return texture;
-        }
-
-        public ScoreSide MoveBall(bool bounceOffSides)
-        {
-            Position.X += velocity.X;
-            Position.Y += velocity.Y;
-
-            if(Position.Y < 0)
-            {
-                Position.Y *= -1;
-                velocity.Y *= -1;
-            }
-
-            if(Position.Y + Position.Height > _render.Height)
-            {
-                Position.Y = _render.Height - Position.Height - (Position.Y + Position.Height - _render.Height);
-                velocity.Y *= -1;
-            }
-
-            if(Position.X < 0)
-                if(bounceOffSides) 
-                {
-                    Position.X = 0;
-                    velocity.X *= -1;
-                }
-                else return ScoreSide.Left;
-
-            if(Position.X + Position.Height > _render.Width)
-                if(bounceOffSides)
-                {
-                    Position.X = _render.Width - Position.Width;
-                    velocity.X *= -1;
-                }
-                else return ScoreSide.Right;
-
-            return ScoreSide.None;
+            _position.X += Velocity.X;
+            _position.Y += Velocity.Y;
         }
 
         public void ResetBall()
         {
-            Position = 
+            _position = 
                 new Rectangle(
                     _render.Width/2 - 4,
                     _render.Height/2 - 4,
@@ -109,7 +63,7 @@ namespace game.Pong
                 );
 
             var random = new Random();
-            velocity =
+            Velocity =
                 new Point(
                     scoreSide == ScoreSide.Left ?
                         random.Next(2, 7) :
@@ -119,5 +73,11 @@ namespace game.Pong
                         random.Next(2, 7) * -1
                 );
         }
+
+        public override void Collide(PongGameComponent component)
+        {
+            if(component is PongPaddle)
+                Velocity.X *= -1;
+        } 
     }
 }

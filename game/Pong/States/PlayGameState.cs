@@ -20,22 +20,7 @@ namespace game.Pong.States
                 _ball.ResetBall();
             }
 
-            var scoreSide = _ball.MoveBall(true);
-
-            switch (scoreSide)
-            {
-                case ScoreSide.Left:
-                    LeftScore += 1;
-                    break;
-                case ScoreSide.Right:
-                    RightScore += 1;
-                    break;
-                case ScoreSide.None:
-                default:
-                    return;
-            }
-
-            Console.WriteLine($"{scoreSide} scored!");
+            _ball.MoveBall();
 
             if(LeftScore > 3 || RightScore > 3)
             {
