@@ -50,7 +50,6 @@ namespace game
                 {
                     new PongWall(
                             this, 
-                            Render, 
                             new Rectangle(
                                     Point.Zero,
                                     new Point(GraphicsDevice.Viewport.Width, 5)
@@ -59,7 +58,6 @@ namespace game
                         ),
                     new PongWall(
                             this, 
-                            Render, 
                             new Rectangle(
                                     GraphicsDevice.Viewport.Width - 5, 
                                     5, 
@@ -70,7 +68,6 @@ namespace game
                         ),
                     new PongWall(
                             this, 
-                            Render, 
                             new Rectangle(
                                     0, 
                                     GraphicsDevice.Viewport.Height - 5, 
@@ -81,12 +78,9 @@ namespace game
                         ),
                     new PongWall(
                             this, 
-                            Render, 
                             new Rectangle(
-                                    0, 
-                                    0, 
-                                    5,
-                                    GraphicsDevice.Viewport.Height
+                                    Point.Zero,
+                                    new Point(5, GraphicsDevice.Viewport.Height)
                                 ), 
                             ScoreSide.Left
                         )

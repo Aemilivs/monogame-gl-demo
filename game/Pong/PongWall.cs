@@ -6,19 +6,16 @@ namespace game.Pong
     public class PongWall : PongGameComponent
     {
 
-        private readonly RenderTarget2D _render;
         private readonly PongGame _game;
         private readonly ScoreSide _side;
 
         public PongWall(
                 PongGame game, 
-                RenderTarget2D render, 
                 Rectangle position, 
                 ScoreSide side
             ) : base(game)
         {
             _game = game;
-            _render = render;
             _position = position;
             _side = side;
         }

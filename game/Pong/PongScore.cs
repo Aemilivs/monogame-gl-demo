@@ -16,8 +16,18 @@ namespace game.Pong
 
             _position =
                 side == ScoreSide.Left ? 
-                    new Rectangle(100, _game.Render.Width/2 - 150, 5, 5) :
-                    new Rectangle(100, _game.Render.Width/2 + 150, 5, 5);
+                    new Rectangle(
+                            100, 
+                            150, 
+                            5, 
+                            5
+                        ) :
+                    new Rectangle(
+                            _game.Render.Width - 100, 
+                            150, 
+                            5, 
+                            5
+                        );
         }
 
         public override void Draw(GameTime gameTime)
