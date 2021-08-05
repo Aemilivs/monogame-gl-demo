@@ -15,20 +15,20 @@ namespace game
         {
             var host = CreateHostBuilder(args).Build();
 
-            BuildConfiguration(new ConfigurationBuilder());
-
             using(var game = ActivatorUtilities.GetServiceOrCreateInstance<Game>(host.Services))
                 game.Run();
         }
 
-        public static void BuildConfiguration(IConfigurationBuilder builder) {
-            builder
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(
-                        "appsettings.json", 
-                        optional: false, 
-                        reloadOnChange: true
-                    );
+        public static IConfiguration BuildConfiguration(IConfigurationBuilder builder) {
+            return
+                builder
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile(
+                            "appsettings.json", 
+                            optional: false, 
+                            reloadOnChange: true
+                        )
+                    .Build();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -38,6 +38,9 @@ namespace game
                         services.AddSingleton<ILoggerFactory>(LoggerFactory.Create(it => it.AddConsole()));
                         services.AddSingleton<Game, PongGame>();
                         services.AddSingleton<GraphicsDeviceManager>();
+
+                        var configuration = BuildConfiguration(new ConfigurationBuilder());
+                        services.AddSingleton<IConfiguration>(configuration);
                     }
                 );
     }

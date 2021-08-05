@@ -6,9 +6,9 @@ namespace game.Pong
         private readonly PongScore _score;
         private readonly PongPaddle _paddle;   
 
-        public PongPlayer(PongGame game)
+        public PongPlayer(PongGame game, ScoreSide side)
         {
-            
+            _wall = new PongWall(game, side);
         }
     }
 }

@@ -11,7 +11,6 @@ namespace game.Pong
 
         public PongWall(
                 PongGame game, 
-                Rectangle position, 
                 ScoreSide side
             ) : base(game)
         {
